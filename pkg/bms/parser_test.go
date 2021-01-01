@@ -45,6 +45,7 @@ func TestParse(t *testing.T) {
 						},
 					},
 				},
+				Data: bms.Data{},
 			},
 		},
 	}

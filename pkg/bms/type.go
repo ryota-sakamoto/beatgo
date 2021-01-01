@@ -2,6 +2,7 @@ package bms
 
 type BMS struct {
 	Header Header
+	Data   Data
 }
 
 type Header struct {
@@ -18,4 +19,7 @@ type Header struct {
 type Wav struct {
 	Index string
 	File  string
+}
+
+type Data struct {
 }
