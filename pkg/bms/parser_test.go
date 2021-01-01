@@ -1,0 +1,44 @@
+package bms_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/ryota-sakamoto/beatgo/pkg/bms"
+)
+
+func TestParse(t *testing.T) {
+	tests := []struct {
+		data string
+		want *bms.BMS
+	}{
+		{
+			data: `#PLAYER 1
+#GENRE MYSTIC SEQUENCER
+#TITLE 冥界帰航(ANOTHER)
+#ARTIST ZUN(Arr.sun3)
+#BPM 200
+#PLAYLEVEL 12
+#RANK 2
+#TOTAL 400`,
+			want: &bms.BMS{
+				Header: bms.Header{
+					Player: 1,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			result, err := bms.Parse(tt.data)
+			if !assert.NoError(t, err) {
+				t.Log(err)
+				t.FailNow()
+			}
+
+			assert.Equal(t, tt.want, result)
+		})
+	}
+}
