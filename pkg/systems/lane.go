@@ -66,7 +66,7 @@ func (l *LaneSystem) Update(dt float32) {
 				ball.SpaceComponent = common.SpaceComponent{
 					Position: engo.Point{
 						X: 0,
-						Y: 0,
+						Y: -50,
 					},
 					Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
 					Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
@@ -79,7 +79,7 @@ func (l *LaneSystem) Update(dt float32) {
 				ball.SpaceComponent = common.SpaceComponent{
 					Position: engo.Point{
 						X: float32(150 + 150*(i/2)),
-						Y: 0,
+						Y: -50,
 					},
 					Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
 					Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
@@ -92,7 +92,7 @@ func (l *LaneSystem) Update(dt float32) {
 				ball.SpaceComponent = common.SpaceComponent{
 					Position: engo.Point{
 						X: float32(85 + 150*(i/2)),
-						Y: 0,
+						Y: -50,
 					},
 					Width:  l.blueNote.Width() * ball.RenderComponent.Scale.X,
 					Height: l.blueNote.Height() * ball.RenderComponent.Scale.Y,
