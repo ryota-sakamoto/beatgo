@@ -11,38 +11,36 @@ import (
 	"github.com/ryota-sakamoto/beatgo/pkg/systems"
 )
 
-type scene struct {
+type Beatgo struct{}
+
+func (pong *Beatgo) Preload() {
+	err := engo.Files.Load("note.png")
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-func (*scene) Type() string { return "myGame" }
+func (pong *Beatgo) Setup(u engo.Updater) {
+	w, _ := u.(*ecs.World)
 
-func (*scene) Preload() {
-	log.Println("scene.Preload")
+	common.SetBackground(color.Black)
+	w.AddSystem(&common.RenderSystem{})
+	w.AddSystem(&common.CollisionSystem{Solids: 1})
+	w.AddSystem(&common.MouseSystem{})
+	w.AddSystem(&systems.SpeedSystem{})
+	w.AddSystem(&systems.BounceSystem{})
+	w.AddSystem(&systems.LaneSystem{})
 }
 
-func (*scene) Setup(u engo.Updater) {
-	log.Println("scene.Setup")
-
-	world, _ := u.(*ecs.World)
-	engo.Input.RegisterButton("AddCity", engo.KeyF1)
-	common.SetBackground(color.White)
-
-	world.AddSystem(&common.RenderSystem{})
-	world.AddSystem(&common.MouseSystem{})
-	world.AddSystem(common.NewKeyboardScroller(400, engo.DefaultHorizontalAxis, engo.DefaultVerticalAxis))
-	// world.AddSystem(&common.EdgeScroller{400, 20})
-	world.AddSystem(&common.MouseZoomer{-0.125})
-
-	world.AddSystem(&systems.KyeboardSystem{})
-}
+func (*Beatgo) Type() string { return "beatgo" }
 
 func main() {
 	opts := engo.RunOptions{
-		Title:          "Hello World",
-		Width:          400,
-		Height:         400,
-		StandardInputs: true,
-		FPSLimit:       120,
+		Title:         "beatgo",
+		Width:         600,
+		Height:        500,
+		ScaleOnResize: true,
+		FPSLimit:      1000,
 	}
-	engo.Run(opts, &scene{})
+	engo.Run(opts, &Beatgo{})
 }
