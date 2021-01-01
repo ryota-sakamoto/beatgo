@@ -5,5 +5,11 @@ type BMS struct {
 }
 
 type Header struct {
-	Player int
+	Player    int
+	Genre     string
+	Artist    string
+	BPM       int
+	Playlevel int
+	Rank      int
+	Total     int
 }

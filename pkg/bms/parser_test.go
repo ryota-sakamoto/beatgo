@@ -24,7 +24,13 @@ func TestParse(t *testing.T) {
 #TOTAL 400`,
 			want: &bms.BMS{
 				Header: bms.Header{
-					Player: 1,
+					Player:    1,
+					Genre:     "MYSTIC SEQUENCER",
+					Artist:    "ZUN(Arr.sun3)",
+					BPM:       200,
+					Playlevel: 12,
+					Rank:      2,
+					Total:     400,
 				},
 			},
 		},
