@@ -12,4 +12,10 @@ type Header struct {
 	Playlevel int
 	Rank      int
 	Total     int
+	Wav       []Wav
+}
+
+type Wav struct {
+	Index string
+	File  string
 }

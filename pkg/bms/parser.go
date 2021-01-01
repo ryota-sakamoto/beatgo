@@ -1,13 +1,16 @@
 package bms
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
 
 func Parse(data string) (*BMS, error) {
 	result := &BMS{
-		Header: Header{},
+		Header: Header{
+			Wav: []Wav{},
+		},
 	}
 
 	for _, v := range strings.Split(data, "\n") {
@@ -64,6 +67,18 @@ func Parse(data string) (*BMS, error) {
 				return nil, err
 			}
 			result.Header.Total = n
+		}
+
+		if strings.HasPrefix(v, "#WAV") {
+			v = strings.ReplaceAll(v, "#WAV", "")
+			wav := strings.Split(v, " ")
+			if len(wav) != 2 {
+				return nil, fmt.Errorf("invalid wav: %+v", wav)
+			}
+			result.Header.Wav = append(result.Header.Wav, Wav{
+				Index: wav[0],
+				File:  wav[1],
+			})
 		}
 	}
 

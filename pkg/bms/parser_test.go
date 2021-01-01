@@ -21,7 +21,10 @@ func TestParse(t *testing.T) {
 #BPM 200
 #PLAYLEVEL 12
 #RANK 2
-#TOTAL 400`,
+#TOTAL 400
+
+#WAV02 bd.wav
+#WAV03 bdl.wav`,
 			want: &bms.BMS{
 				Header: bms.Header{
 					Player:    1,
@@ -31,6 +34,16 @@ func TestParse(t *testing.T) {
 					Playlevel: 12,
 					Rank:      2,
 					Total:     400,
+					Wav: []bms.Wav{
+						{
+							Index: "02",
+							File:  "bd.wav",
+						},
+						{
+							Index: "03",
+							File:  "bdl.wav",
+						},
+					},
 				},
 			},
 		},
