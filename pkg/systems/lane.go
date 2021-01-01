@@ -48,7 +48,7 @@ func (l *LaneSystem) New(w *ecs.World) {
 
 func (l *LaneSystem) Update(dt float32) {
 	l.before += dt
-	if l.before > 0.3 && rand.Float32() > 0.3 {
+	if l.before > 0.3 {
 		l.before = 0
 
 		p := rand.Intn(512)
