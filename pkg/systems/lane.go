@@ -93,21 +93,21 @@ func (l *LaneSystem) GetNote(data *bms.Data) []*Note {
 			continue
 		}
 
-		ball, x := l.getNote(data.Channel)
-		if ball == nil {
+		note, x := l.getNote(data.Channel)
+		if note == nil {
 			continue
 		}
 
-		ball.SpaceComponent = common.SpaceComponent{
+		note.SpaceComponent = common.SpaceComponent{
 			Position: engo.Point{
 				X: x,
 				Y: (l.baseSpeed*float32(data.Bar) + basis*float32(i)) * -1,
 			},
-			Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
-			Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
+			Width:  l.whiteNote.Width() * note.RenderComponent.Scale.X,
+			Height: l.whiteNote.Height() * note.RenderComponent.Scale.Y,
 		}
 
-		result = append(result, ball)
+		result = append(result, note)
 	}
 
 	return result
