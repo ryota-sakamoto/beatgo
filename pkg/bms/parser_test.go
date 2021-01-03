@@ -1,6 +1,7 @@
 package bms_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,7 +53,7 @@ func TestParse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			result, err := bms.Parse(tt.data)
+			result, err := bms.Parse(strings.NewReader(tt.data))
 			if !assert.NoError(t, err) {
 				t.Log(err)
 				t.FailNow()

@@ -1,19 +1,25 @@
 package bms
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 )
 
-func Parse(data string) (*BMS, error) {
+func Parse(r io.Reader) (*BMS, error) {
 	result := &BMS{
 		Header: Header{
 			Wav: []Wav{},
 		},
 	}
 
-	for _, v := range strings.Split(data, "\n") {
+	scanner := bufio.NewScanner(r)
+
+	for scanner.Scan() {
+		v := scanner.Text()
+
 		if strings.HasPrefix(v, "#PLAYER ") {
 			v = strings.ReplaceAll(v, "#PLAYER ", "")
 			n, err := strconv.Atoi(v)
