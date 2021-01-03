@@ -32,7 +32,8 @@ type LaneSystem struct {
 	whiteNote common.Texture
 	blueNote  common.Texture
 
-	before float32
+	before    float32
+	baseSpeed float32
 }
 
 func (l *LaneSystem) New(w *ecs.World) {
@@ -43,6 +44,7 @@ func (l *LaneSystem) New(w *ecs.World) {
 	l.turnNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(0, 50, 30, 60), 100, 80)))
 	l.whiteNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(31, 50, 48, 60), 100, 80)))
 	l.blueNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(49, 50, 62, 60), 100, 200)))
+	l.baseSpeed = 1000
 
 	rand.Seed(rand.Int63())
 
@@ -85,7 +87,7 @@ func (l *LaneSystem) PlaceNote(data *bms.BMS) {
 func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
 	result := []*Ball{}
 
-	basis := float32(500) / float32(len(data.Note))
+	basis := l.baseSpeed / float32(len(data.Note))
 	for i, v := range data.Note {
 		if v == "00" {
 			continue
@@ -99,7 +101,7 @@ func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
 		ball.SpaceComponent = common.SpaceComponent{
 			Position: engo.Point{
 				X: x,
-				Y: (float32(500*data.Bar) + basis*float32(i)) * -1,
+				Y: (l.baseSpeed*float32(data.Bar) + basis*float32(i)) * -1,
 			},
 			Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
 			Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
@@ -117,7 +119,7 @@ func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
 		RenderComponent: common.RenderComponent{
 			Scale: engo.Point{5, 5},
 		},
-		SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		SpeedComponent: SpeedComponent{Point: engo.Point{l.baseSpeed, l.baseSpeed}},
 	}
 	var x float32
 
