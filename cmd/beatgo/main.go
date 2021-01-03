@@ -37,8 +37,8 @@ func (*Beatgo) Type() string { return "beatgo" }
 func main() {
 	opts := engo.RunOptions{
 		Title:         "beatgo",
-		Width:         600,
-		Height:        500,
+		Width:         720,
+		Height:        405,
 		ScaleOnResize: true,
 		FPSLimit:      1000,
 	}
