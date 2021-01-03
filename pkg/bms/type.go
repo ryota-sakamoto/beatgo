@@ -2,7 +2,7 @@ package bms
 
 type BMS struct {
 	Header Header
-	Data   Data
+	Data   []Data
 }
 
 type Header struct {
@@ -22,4 +22,7 @@ type Wav struct {
 }
 
 type Data struct {
+	Bar     int
+	Channel int
+	Note    []string
 }

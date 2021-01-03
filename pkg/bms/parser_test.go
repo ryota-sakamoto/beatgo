@@ -25,7 +25,11 @@ func TestParse(t *testing.T) {
 #TOTAL 400
 
 #WAV02 bd.wav
-#WAV03 bdl.wav`,
+#WAV03 bdl.wav
+
+#00101:00
+#00101:2R
+#00113:0000002100000000`,
 			want: &bms.BMS{
 				Header: bms.Header{
 					Player:    1,
@@ -46,7 +50,36 @@ func TestParse(t *testing.T) {
 						},
 					},
 				},
-				Data: bms.Data{},
+				Data: []bms.Data{
+					{
+						Bar:     1,
+						Channel: 1,
+						Note: []string{
+							"00",
+						},
+					},
+					{
+						Bar:     1,
+						Channel: 1,
+						Note: []string{
+							"2R",
+						},
+					},
+					{
+						Bar:     1,
+						Channel: 13,
+						Note: []string{
+							"00",
+							"00",
+							"00",
+							"21",
+							"00",
+							"00",
+							"00",
+							"00",
+						},
+					},
+				},
 			},
 		},
 	}
