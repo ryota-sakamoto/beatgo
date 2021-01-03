@@ -142,10 +142,10 @@ func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
 	case 15:
 		x = 450
 		ball.Drawable = l.whiteNote
-	case 17:
+	case 18:
 		x = 535
 		ball.Drawable = l.blueNote
-	case 18:
+	case 19:
 		x = 600
 		ball.Drawable = l.whiteNote
 	default:
