@@ -11,6 +11,7 @@ import (
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
+	"github.com/ryota-sakamoto/beatgo/pkg/bms"
 )
 
 type Ball struct {
@@ -39,80 +40,161 @@ func (l *LaneSystem) New(w *ecs.World) {
 	engo.Mailbox.Listen(KeyboardMessage{}.Type(), l.PushHandler)
 
 	l.world = w
-	l.turnNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNote(0, 50, 30, 60), 100, 80)))
-	l.whiteNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNote(31, 50, 48, 60), 100, 80)))
-	l.blueNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNote(49, 50, 62, 60), 100, 200)))
+	l.turnNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(0, 50, 30, 60), 100, 80)))
+	l.whiteNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(31, 50, 48, 60), 100, 80)))
+	l.blueNote = common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(getNoteImage(49, 50, 62, 60), 100, 200)))
 
 	rand.Seed(rand.Int63())
+
+	f, err := os.Open("assets/meikai(ANOTHER).bme")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	data, err := bms.Parse(f)
+	if err != nil {
+		panic(err)
+	}
+
+	l.PlaceNote(data)
 }
 
-func (l *LaneSystem) Update(dt float32) {
-	l.before += dt
-	if l.before > 0.3 {
-		l.before = 0
+func (l *LaneSystem) PlaceNote(data *bms.BMS) {
+	for _, v := range data.Data {
+		list := l.GetNote(&v)
+		if len(list) == 0 {
+			continue
+		}
 
-		p := rand.Intn(512)
-		for i := 0; i < 8; i++ {
-			if (p>>i)&1 == 0 {
-				continue
-			}
-
-			ball := Ball{BasicEntity: ecs.NewBasic()}
-			if i == 0 {
-				ball.RenderComponent = common.RenderComponent{
-					Drawable: l.turnNote,
-					Scale:    engo.Point{5, 5},
-				}
-				ball.SpaceComponent = common.SpaceComponent{
-					Position: engo.Point{
-						X: 0,
-						Y: -50,
-					},
-					Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
-					Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
-				}
-			} else if i%2 == 1 {
-				ball.RenderComponent = common.RenderComponent{
-					Drawable: l.whiteNote,
-					Scale:    engo.Point{5, 5},
-				}
-				ball.SpaceComponent = common.SpaceComponent{
-					Position: engo.Point{
-						X: float32(150 + 150*(i/2)),
-						Y: -50,
-					},
-					Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
-					Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
-				}
-			} else {
-				ball.RenderComponent = common.RenderComponent{
-					Drawable: l.blueNote,
-					Scale:    engo.Point{5, 5},
-				}
-				ball.SpaceComponent = common.SpaceComponent{
-					Position: engo.Point{
-						X: float32(85 + 150*(i/2)),
-						Y: -50,
-					},
-					Width:  l.blueNote.Width() * ball.RenderComponent.Scale.X,
-					Height: l.blueNote.Height() * ball.RenderComponent.Scale.Y,
-				}
-			}
-
-			ball.SpeedComponent = SpeedComponent{Point: engo.Point{300, 300}}
-
+		for _, v := range list {
 			for _, system := range l.world.Systems() {
 				switch sys := system.(type) {
 				case *common.RenderSystem:
-					sys.Add(&ball.BasicEntity, &ball.RenderComponent, &ball.SpaceComponent)
+					sys.Add(&v.BasicEntity, &v.RenderComponent, &v.SpaceComponent)
 				case *SpeedSystem:
-					sys.Add(&ball.BasicEntity, &ball.SpeedComponent, &ball.SpaceComponent)
+					sys.Add(&v.BasicEntity, &v.SpeedComponent, &v.SpaceComponent)
 				case *BounceSystem:
-					sys.Add(&ball.BasicEntity, &ball.SpeedComponent, &ball.SpaceComponent)
+					sys.Add(&v.BasicEntity, &v.SpeedComponent, &v.SpaceComponent)
 				}
 			}
 		}
 	}
+}
+
+func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
+	result := []*Ball{}
+
+	basis := float32(500) / float32(len(data.Note))
+	for i, v := range data.Note {
+		if v == "00" {
+			continue
+		}
+
+		ball, x := l.getNote(data.Channel)
+		if ball == nil {
+			continue
+		}
+
+		ball.SpaceComponent = common.SpaceComponent{
+			Position: engo.Point{
+				X: x,
+				Y: (float32(500*data.Bar) + basis*float32(i)) * -1,
+			},
+			Width:  l.whiteNote.Width() * ball.RenderComponent.Scale.X,
+			Height: l.whiteNote.Height() * ball.RenderComponent.Scale.Y,
+		}
+
+		result = append(result, ball)
+	}
+
+	return result
+}
+
+func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
+	switch channel {
+	case 16:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.turnNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 0
+	case 11:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.whiteNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 150
+	case 12:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.blueNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 235
+	case 13:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.whiteNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 300
+	case 14:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.blueNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 385
+	case 15:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.whiteNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 450
+	case 17:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.blueNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 535
+	case 18:
+		return &Ball{
+			BasicEntity: ecs.NewBasic(),
+			RenderComponent: common.RenderComponent{
+				Scale:    engo.Point{5, 5},
+				Drawable: l.whiteNote,
+			},
+			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+		}, 600
+	default:
+		return nil, 0
+	}
+}
+
+func (l *LaneSystem) Update(dt float32) {
+	// l.before += dt
+	// if l.before > 0.3 {
+	// 	l.before = 0
+	// }
 }
 
 func (l *LaneSystem) Remove(ecs.BasicEntity) {
@@ -122,7 +204,7 @@ func (l *LaneSystem) PushHandler(msg engo.Message) {
 	log.Println("LaneSystem.PushHandler", msg)
 }
 
-func getNote(x0, y0, x1, y1 int) image.Image {
+func getNoteImage(x0, y0, x1, y1 int) image.Image {
 	f, err := os.Open("assets/note.png")
 	if err != nil {
 		panic(err)
