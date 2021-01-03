@@ -20,8 +20,14 @@ func Parse(r io.Reader) (*BMS, error) {
 	for scanner.Scan() {
 		v := scanner.Text()
 
-		if strings.HasPrefix(v, "#PLAYER ") {
-			v = strings.ReplaceAll(v, "#PLAYER ", "")
+		if len(v) == 0 || v[0] != '#' {
+			continue
+		}
+
+		v = v[1:]
+
+		if strings.HasPrefix(v, "PLAYER ") {
+			v = strings.Replace(v, "PLAYER ", "", 1)
 			n, err := strconv.Atoi(v)
 			if err != nil {
 				return nil, err
@@ -29,18 +35,18 @@ func Parse(r io.Reader) (*BMS, error) {
 			result.Header.Player = n
 		}
 
-		if strings.HasPrefix(v, "#GENRE ") {
-			v = strings.ReplaceAll(v, "#GENRE ", "")
+		if strings.HasPrefix(v, "GENRE ") {
+			v = strings.Replace(v, "GENRE ", "", 1)
 			result.Header.Genre = v
 		}
 
-		if strings.HasPrefix(v, "#ARTIST ") {
-			v = strings.ReplaceAll(v, "#ARTIST ", "")
+		if strings.HasPrefix(v, "ARTIST ") {
+			v = strings.Replace(v, "ARTIST ", "", 1)
 			result.Header.Artist = v
 		}
 
-		if strings.HasPrefix(v, "#BPM ") {
-			v = strings.ReplaceAll(v, "#BPM ", "")
+		if strings.HasPrefix(v, "BPM ") {
+			v = strings.Replace(v, "BPM ", "", 1)
 			n, err := strconv.Atoi(v)
 			if err != nil {
 				return nil, err
@@ -48,8 +54,8 @@ func Parse(r io.Reader) (*BMS, error) {
 			result.Header.BPM = n
 		}
 
-		if strings.HasPrefix(v, "#PLAYLEVEL ") {
-			v = strings.ReplaceAll(v, "#PLAYLEVEL ", "")
+		if strings.HasPrefix(v, "PLAYLEVEL ") {
+			v = strings.Replace(v, "PLAYLEVEL ", "", 1)
 			n, err := strconv.Atoi(v)
 			if err != nil {
 				return nil, err
@@ -57,8 +63,8 @@ func Parse(r io.Reader) (*BMS, error) {
 			result.Header.Playlevel = n
 		}
 
-		if strings.HasPrefix(v, "#RANK ") {
-			v = strings.ReplaceAll(v, "#RANK ", "")
+		if strings.HasPrefix(v, "RANK ") {
+			v = strings.Replace(v, "RANK ", "", 1)
 			n, err := strconv.Atoi(v)
 			if err != nil {
 				return nil, err
@@ -66,8 +72,8 @@ func Parse(r io.Reader) (*BMS, error) {
 			result.Header.Rank = n
 		}
 
-		if strings.HasPrefix(v, "#TOTAL ") {
-			v = strings.ReplaceAll(v, "#TOTAL ", "")
+		if strings.HasPrefix(v, "TOTAL ") {
+			v = strings.Replace(v, "TOTAL ", "", 1)
 			n, err := strconv.Atoi(v)
 			if err != nil {
 				return nil, err
@@ -75,8 +81,8 @@ func Parse(r io.Reader) (*BMS, error) {
 			result.Header.Total = n
 		}
 
-		if strings.HasPrefix(v, "#WAV") {
-			v = strings.ReplaceAll(v, "#WAV", "")
+		if strings.HasPrefix(v, "WAV") {
+			v = strings.Replace(v, "WAV", "", 1)
 			wav := strings.Split(v, " ")
 			if len(wav) != 2 {
 				return nil, fmt.Errorf("invalid wav: %+v", wav)
