@@ -112,82 +112,45 @@ func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
 }
 
 func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
+	ball := &Ball{
+		BasicEntity: ecs.NewBasic(),
+		RenderComponent: common.RenderComponent{
+			Scale: engo.Point{5, 5},
+		},
+		SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
+	}
+	var x float32
+
 	switch channel {
 	case 16:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.turnNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 0
+		x = 0
+		ball.Drawable = l.turnNote
 	case 11:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.whiteNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 150
+		x = 150
+		ball.Drawable = l.whiteNote
 	case 12:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.blueNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 235
+		x = 235
+		ball.Drawable = l.blueNote
 	case 13:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.whiteNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 300
+		x = 300
+		ball.Drawable = l.whiteNote
 	case 14:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.blueNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 385
+		x = 385
+		ball.Drawable = l.blueNote
 	case 15:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.whiteNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 450
+		x = 450
+		ball.Drawable = l.whiteNote
 	case 17:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.blueNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 535
+		x = 535
+		ball.Drawable = l.blueNote
 	case 18:
-		return &Ball{
-			BasicEntity: ecs.NewBasic(),
-			RenderComponent: common.RenderComponent{
-				Scale:    engo.Point{5, 5},
-				Drawable: l.whiteNote,
-			},
-			SpeedComponent: SpeedComponent{Point: engo.Point{500, 500}},
-		}, 600
+		x = 600
+		ball.Drawable = l.whiteNote
 	default:
 		return nil, 0
 	}
+
+	return ball, x
 }
 
 func (l *LaneSystem) Update(dt float32) {
