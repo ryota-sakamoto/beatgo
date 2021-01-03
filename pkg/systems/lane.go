@@ -14,7 +14,7 @@ import (
 	"github.com/ryota-sakamoto/beatgo/pkg/bms"
 )
 
-type Ball struct {
+type Note struct {
 	ecs.BasicEntity
 	common.RenderComponent
 	common.SpaceComponent
@@ -84,8 +84,8 @@ func (l *LaneSystem) PlaceNote(data *bms.BMS) {
 	}
 }
 
-func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
-	result := []*Ball{}
+func (l *LaneSystem) GetNote(data *bms.Data) []*Note {
+	result := []*Note{}
 
 	basis := l.baseSpeed / float32(len(data.Note))
 	for i, v := range data.Note {
@@ -113,8 +113,8 @@ func (l *LaneSystem) GetNote(data *bms.Data) []*Ball {
 	return result
 }
 
-func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
-	ball := &Ball{
+func (l *LaneSystem) getNote(channel int) (*Note, float32) {
+	note := &Note{
 		BasicEntity: ecs.NewBasic(),
 		RenderComponent: common.RenderComponent{
 			Scale: engo.Point{5, 5},
@@ -126,33 +126,33 @@ func (l *LaneSystem) getNote(channel int) (*Ball, float32) {
 	switch channel {
 	case 16:
 		x = 0
-		ball.Drawable = l.turnNote
+		note.Drawable = l.turnNote
 	case 11:
 		x = 150
-		ball.Drawable = l.whiteNote
+		note.Drawable = l.whiteNote
 	case 12:
 		x = 235
-		ball.Drawable = l.blueNote
+		note.Drawable = l.blueNote
 	case 13:
 		x = 300
-		ball.Drawable = l.whiteNote
+		note.Drawable = l.whiteNote
 	case 14:
 		x = 385
-		ball.Drawable = l.blueNote
+		note.Drawable = l.blueNote
 	case 15:
 		x = 450
-		ball.Drawable = l.whiteNote
+		note.Drawable = l.whiteNote
 	case 18:
 		x = 535
-		ball.Drawable = l.blueNote
+		note.Drawable = l.blueNote
 	case 19:
 		x = 600
-		ball.Drawable = l.whiteNote
+		note.Drawable = l.whiteNote
 	default:
 		return nil, 0
 	}
 
-	return ball, x
+	return note, x
 }
 
 func (l *LaneSystem) Update(dt float32) {
