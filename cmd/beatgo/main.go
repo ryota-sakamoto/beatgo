@@ -25,6 +25,7 @@ func (pong *Beatgo) Setup(u engo.Updater) {
 
 	common.SetBackground(color.Black)
 	w.AddSystem(&common.RenderSystem{})
+	w.AddSystem(&common.AudioSystem{})
 	w.AddSystem(&systems.SpeedSystem{})
 	w.AddSystem(&systems.BounceSystem{})
 	w.AddSystem(&systems.LaneSystem{})

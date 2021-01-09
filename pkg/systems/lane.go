@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"image"
 	"image/png"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
@@ -18,7 +20,10 @@ type Note struct {
 	ecs.BasicEntity
 	common.RenderComponent
 	common.SpaceComponent
+	common.AudioComponent
 	SpeedComponent
+
+	isNote bool
 }
 
 type LaneSystem struct {
@@ -48,7 +53,23 @@ func (l *LaneSystem) New(w *ecs.World) {
 
 	rand.Seed(rand.Int63())
 
-	f, err := os.Open("assets/meikai(ANOTHER).bme")
+	dir, err := ioutil.ReadDir("assets/meikai")
+	if err != nil {
+		panic(err)
+	}
+	for _, info := range dir {
+		if info.IsDir() {
+			continue
+		}
+		if !strings.Contains(info.Name(), ".wav") {
+			continue
+		}
+		if err := engo.Files.Load("meikai/" + info.Name()); err != nil {
+			panic(err)
+		}
+	}
+
+	f, err := os.Open("assets/meikai/meikai(ANOTHER).bme")
 	if err != nil {
 		panic(err)
 	}
@@ -63,8 +84,13 @@ func (l *LaneSystem) New(w *ecs.World) {
 }
 
 func (l *LaneSystem) PlaceNote(data *bms.BMS) {
+	wav := map[string]string{}
+	for _, v := range data.Header.Wav {
+		wav[v.Index] = v.File
+	}
+
 	for _, v := range data.Data {
-		list := l.GetNote(&v)
+		list := l.GetNote(wav, &v)
 		if len(list) == 0 {
 			continue
 		}
@@ -73,18 +99,22 @@ func (l *LaneSystem) PlaceNote(data *bms.BMS) {
 			for _, system := range l.world.Systems() {
 				switch sys := system.(type) {
 				case *common.RenderSystem:
-					sys.Add(&v.BasicEntity, &v.RenderComponent, &v.SpaceComponent)
+					if v.isNote {
+						sys.Add(&v.BasicEntity, &v.RenderComponent, &v.SpaceComponent)
+					}
+				// case *common.AudioSystem:
+				// 	sys.Add(&v.BasicEntity, &v.AudioComponent)
 				case *SpeedSystem:
 					sys.Add(&v.BasicEntity, &v.SpeedComponent, &v.SpaceComponent)
 				case *BounceSystem:
-					sys.Add(&v.BasicEntity, &v.SpeedComponent, &v.SpaceComponent)
+					sys.Add(&v.BasicEntity, &v.SpeedComponent, &v.SpaceComponent, &v.AudioComponent)
 				}
 			}
 		}
 	}
 }
 
-func (l *LaneSystem) GetNote(data *bms.Data) []*Note {
+func (l *LaneSystem) GetNote(wav map[string]string, data *bms.Data) []*Note {
 	result := []*Note{}
 
 	basis := l.baseSpeed / float32(len(data.Note))
@@ -106,6 +136,16 @@ func (l *LaneSystem) GetNote(data *bms.Data) []*Note {
 			Width:  l.whiteNote.Width() * note.RenderComponent.Scale.X,
 			Height: l.whiteNote.Height() * note.RenderComponent.Scale.Y,
 		}
+		note.AudioComponent = common.AudioComponent{
+			Player: &common.Player{},
+		}
+		if music, ok := wav[v]; ok {
+			player, err := common.LoadedPlayer("meikai/" + music)
+			if err != nil {
+				log.Println(err)
+			}
+			note.AudioComponent.Player = player
+		}
 
 		result = append(result, note)
 	}
@@ -119,7 +159,8 @@ func (l *LaneSystem) getNote(channel int) (*Note, float32) {
 		RenderComponent: common.RenderComponent{
 			Scale: engo.Point{5, 5},
 		},
-		SpeedComponent: SpeedComponent{Point: engo.Point{l.baseSpeed, l.baseSpeed}},
+		SpeedComponent: SpeedComponent{Point: engo.Point{800, 800}},
+		isNote:         true,
 	}
 	var x float32
 
@@ -148,6 +189,8 @@ func (l *LaneSystem) getNote(channel int) (*Note, float32) {
 	case 19:
 		x = 600
 		note.Drawable = l.whiteNote
+	case 1:
+		note.isNote = false
 	default:
 		return nil, 0
 	}
